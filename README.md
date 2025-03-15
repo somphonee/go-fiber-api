@@ -1,40 +1,20 @@
-Go Fiber REST API
-A clean architecture REST API built with Go Fiber and PostgreSQL.
-Features
+🚀 Go Fiber REST API
 
-Clean Architecture (models, repositories, services, handlers)
-PostgreSQL with GORM
-JWT Authentication
-Request Validation
-Pagination
-Search Functionality
-Docker Support
+A modern, high-performance REST API built with Go Fiber framework and PostgreSQL using Clean Architecture principles.
 
-Setup
-Docker
-bashCopydocker-compose up -d
-Manual
+✨ Features
 
-Setup PostgreSQL
-Configure configs/config.yml
-Run: go run cmd/api/main.go
+🏗️ Clean Architecture - Organized in logical layers
 
-API Endpoints
-Auth
+Models
+Repositories
+Services
+Handlers
 
-POST /api/auth/register - Register
-POST /api/auth/login - Login
 
-Resources
-
-GET /api/resources - List all (paginated)
-GET /api/resources/:id - Get one
-POST /api/resources - Create (protected)
-PUT /api/resources/:id - Update (protected)
-DELETE /api/resources/:id - Delete (protected)
-GET /api/resources/search - Search
-
-Configuration
-Edit configs/config.yml for server, database, and JWT settings.
-Development
-Follow clean architecture principles when adding new resources.
+🐘 PostgreSQL Integration - Powered by GORM ORM
+🔐 JWT Authentication - Secure user authentication system
+✅ Request Validation - Input validation for data integrity
+📄 Pagination - Efficient data retrieval
+🔍 Search Functionality - Advanced search capabilities
+🐳 Docker Support - Easy deployment with Docker Compose
