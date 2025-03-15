@@ -10,23 +10,7 @@ Pagination Support - Efficient data retrieval with pagination
 Search Functionality - Built-in search feature
 Docker Ready - Docker and Docker Compose configuration for easy setup and deployment
 
-Project Structure
-Copy├── cmd
-│   └── api
-│       └── main.go
-├── internal
-│   ├── models
-│   ├── repositories
-│   ├── services
-│   └── handlers
-├── pkg
-│   ├── auth
-│   ├── database
-│   └── middleware
-├── configs
-├── docker-compose.yml
-└── Dockerfile
-Prerequisites
+
 
 Go 1.21+
 Docker and Docker Compose
