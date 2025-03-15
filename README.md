@@ -21,7 +21,7 @@ Using Docker
 
 Clone the repository:
 
-bashCopygit clone https://github.com/yourusername/go-fiber-api.git
+bashCopygit clone https://github.com/somphonee/go-fiber-api.git
 cd go-fiber-api
 
 Start the application:
@@ -32,7 +32,7 @@ Manual Setup
 
 Clone the repository:
 
-bashCopygit clone https://github.com/yourusername/go-fiber-api.git
+bashCopygit clone https://github.com/somphonee/go-fiber-api.git
 cd go-fiber-api
 
 Set up PostgreSQL database.
