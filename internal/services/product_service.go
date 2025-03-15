@@ -2,6 +2,7 @@ package services
 import (
 	"github.com/somphonee/go-fiber-api/internal/repository"
 	"github.com/somphonee/go-fiber-api/internal/models"
+	"github.com/somphonee/go-fiber-api/internal/utils"
 )
 
 type ProductService struct {
@@ -9,6 +10,15 @@ type ProductService struct {
 }
 func NewProductService(repo *repository.ProductRepository) *ProductService {
 	return &ProductService{repo: repo}
+}
+// GetAllProductsPaginated ดึงข้อมูลสินค้าแบบแบ่งหน้า
+func (s *ProductService) GetAllProductsPaginated(pagination *utils.Pagination) error {
+	return s.repo.FindAllPaginated(pagination)
+}
+
+// SearchProducts ค้นหาสินค้าจากชื่อ
+func (s *ProductService) SearchProducts(name string) ([]models.Product, error) {
+	return s.repo.FindByName(name)
 }
 
 func (s *ProductService) GetAllProducts() ([]models.Product, error) {

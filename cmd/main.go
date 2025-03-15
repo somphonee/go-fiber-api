@@ -13,6 +13,7 @@ import (
 	"github.com/somphonee/go-fiber-api/internal/routes"
 	"github.com/somphonee/go-fiber-api/internal/services"
 	"github.com/somphonee/go-fiber-api/migrations"
+
 )
 func main() {
 	// Load environment variables
@@ -33,10 +34,12 @@ func main() {
 	// Initialize services
 	productService := services.NewProductService(productRepo)
 	userService := services.NewUserService(userRepo)
+	authService := services.NewAuthService(userRepo)
 
 	// Initialize handlers
 	productHandler := handlers.NewProductHandler(productService)
 	userHandler := handlers.NewUserHandler(userService)
+	authHandler := handlers.NewAuthHandler(authService)
 
 	// Create fiber app
 	app := fiber.New(fiber.Config{
@@ -53,7 +56,7 @@ func main() {
 	app.Use(recover.New())
 
 	// Setup routes
-	routes.SetupRoutes(app, productHandler, userHandler)
+	routes.SetupRoutes(app, productHandler, userHandler,authHandler)
 
 	// Add health check endpoint
 	app.Get("/health", func(c *fiber.Ctx) error {
@@ -63,7 +66,7 @@ func main() {
 	// Get port from environment variable
 	port := os.Getenv("APP_PORT")
 	if port == "" {
-		port = "3000"
+		port = "8080"
 	}
 
 	// Start server

@@ -4,6 +4,7 @@ import (
 	"github.com/somphonee/go-fiber-api/internal/services"
 	"github.com/gofiber/fiber/v2"
 	"github.com/somphonee/go-fiber-api/internal/models"
+	"github.com/somphonee/go-fiber-api/internal/utils"
 	"strconv"
 )
 
@@ -14,6 +15,47 @@ type ProductHandler struct {
 func NewProductHandler(service *services.ProductService) *ProductHandler {
 	return &ProductHandler{service: service}
 }
+
+// GetAllProductsPaginated ดึงข้อมูลสินค้าแบบแบ่งหน้า
+func (h *ProductHandler) GetAllProductsPaginated(c *fiber.Ctx) error {
+	// ดึงข้อมูล pagination จาก request
+	limit, page := utils.GetPagination(c)
+	
+	// สร้าง pagination object
+	pagination := &utils.Pagination{
+		Limit: limit,
+		Page:  page,
+	}
+
+	// ดึงข้อมูลแบบแบ่งหน้า
+	if err := h.service.GetAllProductsPaginated(pagination); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to get products",
+		})
+	}
+
+	return c.JSON(pagination)
+}
+
+// SearchProducts ค้นหาสินค้าจากชื่อ
+func (h *ProductHandler) SearchProducts(c *fiber.Ctx) error {
+	name := c.Query("name")
+	if name == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Name parameter is required",
+		})
+	}
+
+	products, err := h.service.SearchProducts(name)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to search products",
+		})
+	}
+
+	return c.JSON(products)
+}
+
 func (h *ProductHandler) GetAllProducts(c *fiber.Ctx) error {
 	products, err := h.service.GetAllProducts()
 	if err != nil {
