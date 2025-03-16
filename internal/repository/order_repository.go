@@ -1,11 +1,11 @@
-
 package repository
 
 import (
+	"time"
 	"gorm.io/gorm"
 	"github.com/somphonee/go-fiber-api/internal/models"
-	"time"
 )
+
 type OrderRepository struct {
 	DB *gorm.DB
 }
@@ -14,13 +14,14 @@ func NewOrderRepository(db *gorm.DB) *OrderRepository {
 	return &OrderRepository{DB: db}
 }
 
-// CreateOrder creates a new order in the database
+// CreateOrder creates a new order in the database and returns its ID
 func (r *OrderRepository) CreateOrder(order *models.Order) error {
 	query := `
 		INSERT INTO orders (user_id, total, status, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?);
+		VALUES (?, ?, ?, ?, ?) RETURNING id;
 	`
-	result := r.DB.Exec(query, order.UserID, order.Total, order.Status, order.CreatedAt, order.UpdatedAt)
+	// รับค่า ID ของ order ที่ถูกสร้าง
+	result := r.DB.Raw(query, order.UserID, order.Total, order.Status, order.CreatedAt, order.UpdatedAt).Scan(&order.ID)
 	return result.Error
 }
 
@@ -55,26 +56,17 @@ func (r *OrderRepository) GetOrders(userID uint) ([]models.Order, error) {
 // UpdateOrderStatus updates the status of an order
 func (r *OrderRepository) UpdateOrderStatus(orderID uint, status string) error {
 	query := `
-		UPDATE orders SET status = :status, updated_at = :updatedAt WHERE id = :id;
+		UPDATE orders SET status = ?, updated_at = ? WHERE id = ?;
 	`
-	params := map[string]interface{}{
-		"status":    status,
-		"updatedAt": time.Now(),
-		"id":        orderID,
-	}
-	result := r.DB.Exec(query, params)
+	result := r.DB.Exec(query, status, time.Now(), orderID)
 	return result.Error
 }
 
 // DeleteOrder soft deletes an order by marking it as deleted (using deleted_at)
 func (r *OrderRepository) DeleteOrder(orderID uint) error {
 	query := `
-		UPDATE orders SET deleted_at = :deletedAt WHERE id = :id;
+		UPDATE orders SET deleted_at = ? WHERE id = ?;
 	`
-	params := map[string]interface{}{
-		"deletedAt": time.Now(),
-		"id":        orderID,
-	}
-	result := r.DB.Exec(query, params)
+	result := r.DB.Exec(query, time.Now(), orderID)
 	return result.Error
 }

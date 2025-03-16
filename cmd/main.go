@@ -30,16 +30,22 @@ func main() {
 	// Initialize repositories
 	productRepo := repository.NewProductRepository(db)
 	userRepo := repository.NewUserRepository(db)
+  orderRepo := repository.NewOrderRepository(db)
+	orderItemRepo := repository.NewOrderItemRepository(db)
 
+	
+	
 	// Initialize services
 	productService := services.NewProductService(productRepo)
 	userService := services.NewUserService(userRepo)
 	authService := services.NewAuthService(userRepo)
+	orderService := services.NewOrderService(orderRepo,orderItemRepo)
 
 	// Initialize handlers
 	productHandler := handlers.NewProductHandler(productService)
 	userHandler := handlers.NewUserHandler(userService)
 	authHandler := handlers.NewAuthHandler(authService)
+	orderHandler := handlers.NewOrderHandler(orderService)
 
 	// Create fiber app
 	app := fiber.New(fiber.Config{
@@ -56,7 +62,7 @@ func main() {
 	app.Use(recover.New())
 
 	// Setup routes
-	routes.SetupRoutes(app, productHandler, userHandler,authHandler)
+	routes.SetupRoutes(app, productHandler, userHandler,authHandler,orderHandler)
 
 	// Add health check endpoint
 	app.Get("/health", func(c *fiber.Ctx) error {

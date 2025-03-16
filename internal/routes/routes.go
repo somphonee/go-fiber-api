@@ -6,7 +6,7 @@ import (
 	"github.com/somphonee/go-fiber-api/internal/middleware"
 )
 
-func SetupRoutes(app *fiber.App, productHandler *handlers.ProductHandler, userHandler *handlers.UserHandler,  authHandler *handlers.AuthHandler) {
+func SetupRoutes(app *fiber.App, productHandler *handlers.ProductHandler, userHandler *handlers.UserHandler,  authHandler *handlers.AuthHandler, orderHandler *handlers.OrderHandler) {
 	// Product Routes
 	api := app.Group("/api")
 	// Authentication routes
@@ -16,6 +16,13 @@ func SetupRoutes(app *fiber.App, productHandler *handlers.ProductHandler, userHa
 	
 	// Protected routes
 	protected := api.Group("/", middleware.Protected())
+
+	orders := protected.Group("/orders")
+	orders.Post("/", orderHandler.CreateOrder)
+	orders.Get("/:id", orderHandler.GetOrder)
+	orders.Get("/", orderHandler.GetOrders)
+	orders.Delete("/:id", orderHandler.DeleteOrder)
+
 
 	// Product routes
 	products := protected.Group("/products")

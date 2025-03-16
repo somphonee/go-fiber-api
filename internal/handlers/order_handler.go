@@ -17,17 +17,23 @@ func NewOrderHandler(service *services.OrderService) *OrderHandler {
 
 // CreateOrder creates a new order
 func (h *OrderHandler) CreateOrder(c *fiber.Ctx) error {
-	var orderItems []models.OrderItem
-	if err := c.BodyParser(&orderItems); err != nil {
+		var req struct {
+		UserID uint              `json:"user_id"`
+		Items  []models.OrderItem `json:"items"`
+	}
+
+
+	if err := c.BodyParser(&req); err != nil {
+	
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Failed to parse order items",
 		})
 	}
 
 	// Extract userID from the request context or JWT token (assumed)
-	userID := uint(1) // Example: Replace with actual userID from JWT
 
-	order, err := h.service.CreateOrder(userID, orderItems)
+
+	order, err := h.service.CreateOrder(req.UserID, req.Items)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to create order",

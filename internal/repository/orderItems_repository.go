@@ -11,42 +11,38 @@ type OrderItemRepository struct {
 }
 
 func NewOrderItemRepository(db *gorm.DB) *OrderItemRepository {
-	return &OrderItemRepository{
-		DB: db,
-	}
+	return &OrderItemRepository{DB: db}
 }
 
 // CreateOrderItem creates a new order item in the database
 func (r *OrderItemRepository) CreateOrderItem(orderItem *models.OrderItem) error {
 	query := `
 		INSERT INTO order_items (order_id, product_id, quantity, price, created_at, updated_at)
-		VALUES (:order_id, :product_id, :quantity, :price, :created_at, :updated_at);
+		VALUES ($1, $2, $3, $4, $5, $6)
+		RETURNING id;
 	`
-	params := map[string]interface{}{
-		"order_id":   orderItem.OrderID,
-		"product_id": orderItem.ProductID,
-		"quantity":   orderItem.Quantity,
-		"price":      orderItem.Price,
-		"created_at": orderItem.CreatedAt,
-		"updated_at": orderItem.UpdatedAt,
-	}
-	result := r.DB.Exec(query, params)
-	return result.Error
+	err := r.DB.Raw(query,
+		orderItem.OrderID,
+		orderItem.ProductID,
+		orderItem.Quantity,
+		orderItem.Price,
+		time.Now(),
+		time.Now(),
+	).Scan(&orderItem.ID).Error
+
+	return err
 }
 
 // GetOrderItems retrieves all items for a given order
 func (r *OrderItemRepository) GetOrderItems(orderID uint) ([]models.OrderItem, error) {
 	query := `
 		SELECT id, order_id, product_id, quantity, price, created_at, updated_at, deleted_at
-		FROM order_items WHERE order_id = :order_id;
+		FROM order_items WHERE order_id = $1;
 	`
-	params := map[string]interface{}{
-		"order_id": orderID,
-	}
 	var orderItems []models.OrderItem
-	result := r.DB.Raw(query, params).Scan(&orderItems)
-	if result.Error != nil {
-		return nil, result.Error
+	err := r.DB.Raw(query, orderID).Scan(&orderItems).Error
+	if err != nil {
+		return nil, err
 	}
 	return orderItems, nil
 }
@@ -54,45 +50,39 @@ func (r *OrderItemRepository) GetOrderItems(orderID uint) ([]models.OrderItem, e
 // UpdateOrderItem updates an order item based on its ID
 func (r *OrderItemRepository) UpdateOrderItem(orderItem *models.OrderItem) error {
 	query := `
-		UPDATE order_items SET quantity = :quantity, price = :price, updated_at = :updated_at
-		WHERE id = :id;
+		UPDATE order_items 
+		SET quantity = $1, price = $2, updated_at = $3
+		WHERE id = $4;
 	`
-	params := map[string]interface{}{
-		"quantity":   orderItem.Quantity,
-		"price":      orderItem.Price,
-		"updated_at": time.Now(),
-		"id":         orderItem.ID,
-	}
-	result := r.DB.Exec(query, params)
-	return result.Error
+	err := r.DB.Exec(query,
+		orderItem.Quantity,
+		orderItem.Price,
+		time.Now(),
+		orderItem.ID,
+	).Error
+
+	return err
 }
 
 // DeleteOrderItem soft deletes an order item (sets deleted_at)
 func (r *OrderItemRepository) DeleteOrderItem(orderItemID uint) error {
 	query := `
-		UPDATE order_items SET deleted_at = :deleted_at WHERE id = :id;
+		UPDATE order_items SET deleted_at = $1 WHERE id = $2;
 	`
-	params := map[string]interface{}{
-		"deleted_at": time.Now(),
-		"id":         orderItemID,
-	}
-	result := r.DB.Exec(query, params)
-	return result.Error
+	err := r.DB.Exec(query, time.Now(), orderItemID).Error
+	return err
 }
 
 // GetOrderItem retrieves a single order item by its ID
 func (r *OrderItemRepository) GetOrderItem(orderItemID uint) (*models.OrderItem, error) {
 	query := `
 		SELECT id, order_id, product_id, quantity, price, created_at, updated_at, deleted_at
-		FROM order_items WHERE id = :id;
+		FROM order_items WHERE id = $1;
 	`
-	params := map[string]interface{}{
-		"id": orderItemID,
-	}
 	var orderItem models.OrderItem
-	result := r.DB.Raw(query, params).Scan(&orderItem)
-	if result.Error != nil {
-		return nil, result.Error
+	err := r.DB.Raw(query, orderItemID).Scan(&orderItem).Error
+	if err != nil {
+		return nil, err
 	}
 	return &orderItem, nil
 }
