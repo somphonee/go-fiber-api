@@ -1,5 +1,12 @@
 package models
 
+
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
+
 type Order struct {
 	ID        uint           `json:"id" gorm:"primaryKey"`
 	UserID    uint           `json:"user_id" gorm:"not null"`
